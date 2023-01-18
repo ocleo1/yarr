@@ -232,6 +232,7 @@ var vm = new Vue({
       'refreshRate': s.refresh_rate,
       'authenticated': app.authenticated,
       'feed_errors': {},
+      'feedViewSelected': 'list'
     }
   },
   computed: {
@@ -683,6 +684,9 @@ var vm = new Vue({
       this.filteredFolderStats = statsFolders
       this.filteredTotalStats = statsTotal
     },
+    changeFeedView: function(view) {
+      this.feedViewSelected = view;
+    }
   }
 })
 
