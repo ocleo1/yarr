@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/html"
+
 	"github.com/nkanaev/yarr/src/assets"
 	"github.com/nkanaev/yarr/src/content/htmlutil"
 	"github.com/nkanaev/yarr/src/content/readability"
@@ -329,6 +331,13 @@ func (s *Server) handleItem(c *router.Context) {
 		}
 
 		item.Content = sanitizer.Sanitize(item.Link, item.Content)
+		// item.Content contains item.ImageURL, so set empty
+		if item.ImageURL != nil {
+			escapedUrl := html.EscapeString(*item.ImageURL)
+			if strings.Contains(item.Content, escapedUrl) {
+				item.ImageURL = nil
+			}
+		}
 
 		c.JSON(http.StatusOK, item)
 	} else if c.Req.Method == "PUT" {
