@@ -598,6 +598,7 @@ a,
   }
   #app.item-selected #col-item {
     display: flex !important;
+    flex-direction: column-reverse !important;
   }
 }
 
