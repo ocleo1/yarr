@@ -49,8 +49,10 @@
       refresh: function() {
         return api('post', './api/feeds/refresh')
       },
-      list_errors: function() {
-        return api('get', './api/feeds/errors').then(json)
+      list_errors: function(query) {
+        var url = './api/feeds/errors'
+        if (query) url += param(query)
+        return api('get', url).then(json)
       },
     },
     folders: {
@@ -82,6 +84,9 @@
       },
       mark_read: function(query) {
         return api('put', './api/items' + param(query))
+      },
+      refresh: function(id) {
+        return api('post', './api/items/' + id)
       },
     },
     settings: {

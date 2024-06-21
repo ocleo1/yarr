@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"log"
+	"strconv"
 )
 
 type Feed struct {
@@ -181,10 +182,14 @@ func (s *Storage) SetFeedError(feedID int64, lastError error) {
 	}
 }
 
-func (s *Storage) GetFeedErrors() map[int64]string {
+func (s *Storage) GetFeedErrors(id int64) map[int64]string {
 	errors := make(map[int64]string)
 
-	rows, err := s.db.Query(`select feed_id, error from feed_errors`)
+	query := `select feed_id, error from feed_errors`
+	if id != -1 {
+		query = query + " where feed_id = " + strconv.FormatInt(id, 10)
+	}
+	rows, err := s.db.Query(query)
 	if err != nil {
 		log.Print(err)
 		return errors

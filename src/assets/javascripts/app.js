@@ -359,20 +359,21 @@ var vm = new Vue({
     },
   },
   methods: {
-    refreshStats: function(loopMode) {
+    refreshStats: function(loopMode, id) {
+      var query = !!id ? { feed_id: id } : null;
       return api.status().then(function(data) {
         if (loopMode && !vm.itemSelected) vm.refreshItems()
 
         vm.loading.feeds = data.running
         if (data.running) {
-          setTimeout(vm.refreshStats.bind(vm, true), 500)
+          setTimeout(vm.refreshStats.bind(vm, true, id), 3000)
         }
         vm.feedStats = data.stats.reduce(function(acc, stat) {
           acc[stat.feed_id] = stat
           return acc
         }, {})
 
-        api.feeds.list_errors().then(function(errors) {
+        api.feeds.list_errors(query).then(function(errors) {
           vm.feed_errors = errors
         })
       })
@@ -654,6 +655,12 @@ var vm = new Vue({
       if (this.loading.feeds) return
       api.feeds.refresh().then(function() {
         vm.refreshStats()
+      })
+    },
+    fetchLatestFeed: function(id) {
+      if (this.loading.feeds) return
+      api.items.refresh(id).then(function() {
+        vm.refreshStats(false, id)
       })
     },
     computeStats: function() {

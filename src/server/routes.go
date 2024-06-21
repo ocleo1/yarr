@@ -37,7 +37,7 @@ func (s *Server) handler() http.Handler {
 			Username: s.Username,
 			Password: s.Password,
 			Public:   []string{"/static", "/fever"},
-            DB:       s.db,
+			DB:       s.db,
 		}
 		r.Use(a.Handler)
 	}
@@ -165,7 +165,11 @@ func (s *Server) handleFeedRefresh(c *router.Context) {
 }
 
 func (s *Server) handleFeedErrors(c *router.Context) {
-	errors := s.db.GetFeedErrors()
+	feedID, err := c.QueryInt64("feed_id")
+	if err != nil {
+		feedID = -1
+	}
+	errors := s.db.GetFeedErrors(feedID)
 	c.JSON(http.StatusOK, errors)
 }
 
@@ -350,6 +354,9 @@ func (s *Server) handleItem(c *router.Context) {
 		if body.Status != nil {
 			s.db.UpdateItemStatus(id, *body.Status)
 		}
+		c.Out.WriteHeader(http.StatusOK)
+	} else if c.Req.Method == "POST" {
+		s.worker.RefreshFeed(id)
 		c.Out.WriteHeader(http.StatusOK)
 	} else {
 		c.Out.WriteHeader(http.StatusMethodNotAllowed)

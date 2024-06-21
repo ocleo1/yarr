@@ -87,6 +87,26 @@ func (w *Worker) SetRefreshRate(minute int64) {
 	}(w.refresh.C, w.stopper, minute)
 }
 
+func (w *Worker) RefreshFeed(id int64) {
+	w.reflock.Lock()
+	defer w.reflock.Unlock()
+
+	if *w.pending > 0 {
+		log.Print("Refreshing already in progress")
+		return
+	}
+
+	feed := w.db.GetFeed(id)
+	if feed == nil {
+		log.Print("Nothing to refresh")
+		return
+	}
+
+	log.Printf("Refreshing feed, %s", feed.Title)
+	atomic.StoreInt32(w.pending, 1)
+	go w.refresher([]storage.Feed{*feed})
+}
+
 func (w *Worker) RefreshFeeds() {
 	w.reflock.Lock()
 	defer w.reflock.Unlock()
