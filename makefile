@@ -1,4 +1,4 @@
-VERSION=2.4.2
+VERSION=2.4.3
 GITHASH=$(shell git rev-parse --short=8 HEAD)
 
 GO_LDFLAGS = -s -w -X 'main.Version=$(VERSION)' -X 'main.GitHash=$(GITHASH)'
