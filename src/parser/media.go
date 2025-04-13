@@ -66,13 +66,18 @@ func (m *media) firstMediaDescription() string {
 func (m *media) mediaLinks() []MediaLink {
 	links := make([]MediaLink, 0)
 	for _, thumbnail := range m.MediaThumbnails {
-		links = append(links, MediaLink{URL: thumbnail.URL, Type: "image"})
+		links = append(links, MediaLink{
+			URL:         thumbnail.URL,
+			Type:        "image",
+			Description: "thumbnail",
+		})
 	}
 	for _, group := range m.MediaGroups {
 		for _, thumbnail := range group.MediaThumbnails {
 			links = append(links, MediaLink{
-				URL:  thumbnail.URL,
-				Type: "image",
+				URL:         thumbnail.URL,
+				Type:        "image",
+				Description: "group-thumbnail",
 			})
 		}
 	}
@@ -99,8 +104,9 @@ func (m *media) mediaLinks() []MediaLink {
 		}
 		for _, thumbnail := range content.MediaThumbnails {
 			links = append(links, MediaLink{
-				URL:  thumbnail.URL,
-				Type: "image",
+				URL:         thumbnail.URL,
+				Type:        "image",
+				Description: "content-thumbnail",
 			})
 		}
 	}
