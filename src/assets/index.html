@@ -221,6 +221,25 @@
                         Feed Link
                     </a>
                     <div class="dropdown-divider" v-if="current.feed.link || current.feed.feed_link"></div>
+                    <button class="dropdown-item" @click="changeFeedView('list')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "list.svg" %}</span>
+                                List
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='list'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
+                    <button class="dropdown-item" @click="changeFeedView('card')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "card-list.svg" %}</span>
+                                Card
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='card'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
+                    <div class="dropdown-divider"></div>
                     <button class="dropdown-item" @click="renameFeed(current.feed)">
                         <span class="icon mr-1">{% inline "edit.svg" %}</span>
                         Rename
@@ -287,7 +306,13 @@
                             </small>
                             <small class="flex-shrink-0"><relative-time v-bind:title="formatDate(item.date)" :val="item.date"/></small>
                         </div>
-                        <div>{{ item.title || 'untitled' }}</div>
+                        <div v-if="feedViewSelected=='card'" class="d-flex" style="margin-top:5px;">
+                            <div class="flex-grow-0 flex-shrink-1" style="flex-basis:30%;margin-right:10px;">
+                                <img class="feed-view-card-thumbnail" v-if="!!getItemThumbnail(item)" v-bind:src="getItemThumbnail(item)"/>
+                            </div>
+                            <div style="flex:2 2 65%">{{ item.title || 'untitled' }}</div>
+                        </div>
+                        <div v-else>{{ item.title || 'untitled' }}</div>
                     </div>
                 </label>
                 <button class="btn btn-link btn-block loading my-3" v-if="itemsHasMore"></button>

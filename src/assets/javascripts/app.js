@@ -252,6 +252,7 @@ var vm = new Vue({
       'refreshRate': s.refresh_rate,
       'authenticated': app.authenticated,
       'feed_errors': {},
+      'feedViewSelected': 'list'
     }
   },
   computed: {
@@ -778,6 +779,24 @@ var vm = new Vue({
         if (target && scroll) scrollto(target, scroll)
       })
     },
+    changeFeedView: function(view) {
+      this.feedViewSelected = view;
+    },
+    getItemThumbnail: function(item) {
+      if (!Array.isArray(item.media_links) && item.media_links.length === 0) {
+        return ''
+      }
+
+      var mediaLink = item.media_links.find((link) => link.type === 'image' && link.description === 'thumbnail')
+        || item.media_links.find((link) => link.type === 'image' && link.description === 'group-thumbnail')
+        || item.media_links.find((link) => link.type === 'image' && link.description === 'content-thumbnail')
+
+      if (!mediaLink) {
+        return ''
+      }
+
+      return mediaLink.url
+    }
   }
 })
 
