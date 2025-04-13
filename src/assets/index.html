@@ -280,6 +280,25 @@
                         <span class="icon">{% inline "more-horizontal.svg" %}</span>
                     </template>
                     <header class="dropdown-header" role="heading" aria-level="2">{{ current.folder.title }}</header>
+                    <button class="dropdown-item" @click="changeFeedView('list')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "list.svg" %}</span>
+                                List
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='list'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
+                    <button class="dropdown-item" @click="changeFeedView('card')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "card-list.svg" %}</span>
+                                Card
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='card'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
+                    <div class="dropdown-divider"></div>
                     <button class="dropdown-item" @click="renameFolder(current.folder)">
                         <span class="icon mr-1">{% inline "edit.svg" %}</span>
                         Rename
