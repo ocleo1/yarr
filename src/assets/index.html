@@ -179,7 +179,7 @@
             </div>
         </div>
         <!-- item list -->
-        <div id="col-item-list" class="vh-100 position-relative d-flex flex-column border-right flex-shrink-0" :style="{width: itemListWidth+'px'}">
+        <div id="col-item-list" class="vh-100 position-relative d-flex flex-column border-right flex-shrink-0" :style="{width: feedViewSelected=='grid' ? 'initial' : itemListWidth+'px', flex: feedViewSelected=='grid' ? 1 : undefined}">
             <drag :width="itemListWidth" @resize="resizeItemList"></drag>
             <div class="px-2 toolbar d-flex align-items-center">
                 <button class="toolbar-item mr-2 d-block d-md-none"
@@ -237,6 +237,15 @@
                                 Card
                             </span>
                             <span class="icon" v-if="feedViewSelected=='card'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
+                    <button class="dropdown-item" @click="changeFeedView('grid')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "grid.svg" %}</span>
+                                Grid
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='grid'">{% inline "check.svg" %}</span>
                         </div>
                     </button>
                     <div class="dropdown-divider"></div>
@@ -298,6 +307,15 @@
                             <span class="icon" v-if="feedViewSelected=='card'">{% inline "check.svg" %}</span>
                         </div>
                     </button>
+                    <button class="dropdown-item" @click="changeFeedView('grid')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="icon mr-1">{% inline "grid.svg" %}</span>
+                                Grid
+                            </span>
+                            <span class="icon" v-if="feedViewSelected=='grid'">{% inline "check.svg" %}</span>
+                        </div>
+                    </button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" @click="renameFolder(current.folder)">
                         <span class="icon mr-1">{% inline "edit.svg" %}</span>
@@ -310,12 +328,24 @@
                     </button>
                 </dropdown>
             </div>
-            <div id="item-list-scroll" class="p-2 overflow-auto border-top flex-grow-1" v-scroll="loadMoreItems" ref="itemlist">
+            <div id="item-list-scroll" class="p-2 overflow-auto border-top flex-grow-1" :class="{'d-flex': feedViewSelected=='grid'}" :style="feedViewSelected=='grid' ? {'flex-wrap': 'wrap'} : {}" v-scroll="loadMoreItems" ref="itemlist">
                 <label v-for="item in items" :key="item.id"
-                       class="selectgroup">
+                       class="selectgroup" :class="{'d-flex': feedViewSelected=='grid'}" :style="feedViewSelected=='grid' ? {'flex': '1 1 20%', 'max-width': '20%'} : {}">
                     <input type="radio" name="item" :value="item.id" v-model="itemSelected">
-                    <div class="selectgroup-label d-flex flex-column">
-                        <div style="line-height: 1; opacity: .7; margin-bottom: .1rem;" class="d-flex align-items-center">
+                    <div class="selectgroup-label d-flex flex-column" :style="feedViewSelected=='grid' ? {'width': '100%'} : {}">
+                        <div v-if="feedViewSelected=='grid'" style="line-height: 1; opacity: .7; margin-bottom: .1rem;" class="d-flex flex-column">
+                            <div class="flex-fill d-flex align-items-center">
+                                <transition name="indicator">
+                                    <span class="icon icon-small mr-1" v-if="item.status=='unread'">{% inline "circle-full.svg" %}</span>
+                                    <span class="icon icon-small mr-1" v-if="item.status=='starred'">{% inline "star-full.svg" %}</span>
+                                </transition>
+                                <small class="flex-shrink-0"><relative-time v-bind:title="formatDate(item.date)" :val="item.date"/></small>
+                            </div>
+                            <small class="flex-fill text-truncate mr-1">
+                                {{ (feedsById[item.feed_id] || {}).title }}
+                            </small>
+                        </div>
+                        <div v-else style="line-height: 1; opacity: .7; margin-bottom: .1rem;" class="d-flex align-items-center">
                             <transition name="indicator">
                                 <span class="icon icon-small mr-1" v-if="item.status=='unread'">{% inline "circle-full.svg" %}</span>
                                 <span class="icon icon-small mr-1" v-if="item.status=='starred'">{% inline "star-full.svg" %}</span>
@@ -331,6 +361,10 @@
                             </div>
                             <div style="flex:2 2 65%">{{ item.title || 'untitled' }}</div>
                         </div>
+                        <div v-else-if="feedViewSelected=='grid'" class="d-flex flex-column">
+                            <img class="feed-view-card-thumbnail" v-if="!!getItemThumbnail(item)" v-bind:src="getItemThumbnail(item)"/>
+                            <div>{{ item.title || 'untitled' }}</div>
+                        </div>
                         <div v-else>{{ item.title || 'untitled' }}</div>
                     </div>
                 </label>
@@ -341,7 +375,7 @@
             </div>
         </div>
         <!-- item show -->
-        <div id="col-item" class="vh-100 d-flex flex-column w-100" style="min-width: 0;">
+        <div id="col-item" class="vh-100 flex-column w-100" style="min-width: 0;" :style="{display: feedViewSelected=='grid' ? 'none' : 'flex'}">
             <div class="toolbar px-2 d-flex align-items-center" v-if="itemSelectedDetails">
                 <button class="toolbar-item"
                         @click="toggleItemStarred(itemSelectedDetails)"
