@@ -564,7 +564,7 @@ a,
     display: none !important;
   }
   #app.item-selected #col-item {
-    display: flex !important;
+    display: flex;
   }
 }
 
@@ -599,6 +599,9 @@ a,
   #app.item-selected #col-item {
     display: flex !important;
     flex-direction: column-reverse !important;
+  }
+  #app.item-selected #feed-item-drawer {
+    display: none;
   }
 }
 

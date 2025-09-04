@@ -5,6 +5,7 @@
     <title>yarr!</title>
     <link rel="stylesheet" href="./static/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" href="./static/stylesheets/app.css">
+    <link rel="stylesheet" href="./static/stylesheets/drawer.css">
     <link rel="icon" href="./static/graphicarts/favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="./static/graphicarts/favicon.png" type="image/png">
     <link rel="manifest" href="./manifest.json" />
@@ -453,6 +454,88 @@
                 </div>
             </div>
         </div>
+        <drawer
+            :visible="itemSelectedDetails !== null"
+            @close="itemSelectedDetails = null"
+            title="Feed Drawer"
+        >
+            <div class="toolbar px-2 d-flex align-items-center" v-if="itemSelectedDetails">
+                <button class="toolbar-item"
+                        @click="toggleItemStarred(itemSelectedDetails)"
+                        title="Mark Starred">
+                    <span class="icon" v-if="itemSelectedDetails.status=='starred'" >{% inline "star-full.svg" %}</span>
+                    <span class="icon" v-else-if="itemSelectedDetails.status!='starred'" >{% inline "star.svg" %}</span>
+                </button>
+                <button class="toolbar-item"
+                        title="Mark Unread"
+                        @click="toggleItemRead(itemSelectedDetails)">
+                    <span class="icon" v-if="itemSelectedDetails.status=='unread'">{% inline "circle-full.svg" %}</span>
+                    <span class="icon" v-if="itemSelectedDetails.status!='unread'">{% inline "circle.svg" %}</span>
+                </button>
+                <dropdown class="settings-dropdown" toggle-class="toolbar-item px-2" drop="center" title="Appearance">
+                    <template v-slot:button>
+                        <span class="icon">{% inline "sliders.svg" %}</span>
+                    </template>
+
+                    <button class="dropdown-item" :class="{active: !theme.font}" @click.stop="theme.font = ''">sans-serif</button>
+                    <button class="dropdown-item font-serif" :class="{active: theme.font == 'serif'}" @click.stop="theme.font = 'serif'">serif</button>
+                    <button class="dropdown-item font-monospace" :class="{active: theme.font == 'monospace'}" @click.stop="theme.font = 'monospace'">monospace</button>
+
+                    <div class="d-flex text-center">
+                        <button class="dropdown-item" style="font-size: 0.8rem" @click.stop="incrFont(-1)">A</button>
+                        <button class="dropdown-item" style="font-size: 1.2rem" @click.stop="incrFont(1)">A</button>
+                    </div>
+                </dropdown>
+                <button class="toolbar-item"
+                        :class="{active: itemSelectedReadability}"
+                        @click="toggleReadability()"
+                        title="Read Here">
+                    <span class="icon" :class="{'icon-loading': loading.readability}">{% inline "book-open.svg" %}</span>
+                </button>
+                <a class="toolbar-item" :href="itemSelectedDetails.link" rel="noopener noreferrer" target="_blank" referrerpolicy="no-referrer" title="Open Link">
+                    <span class="icon">{% inline "external-link.svg" %}</span>
+                </a>
+                <div class="flex-grow-1"></div>
+                <button class="toolbar-item" @click="navigateToItem(-1)" title="Previous Article" :disabled="itemSelected == items[0].id">
+                    <span class="icon">{% inline "chevron-left.svg" %}</span>
+                </button>
+                <button class="toolbar-item" @click="navigateToItem(+1)" title="Next Article" :disabled="itemSelected == items[items.length - 1].id">
+                    <span class="icon">{% inline "chevron-right.svg" %}</span>
+                </button>
+                <button class="toolbar-item" @click="itemSelected=null" title="Close Article">
+                    <span class="icon">{% inline "x.svg" %}</span>
+                </button>
+            </div>
+            <div v-if="itemSelectedDetails"
+                ref="content"
+                class="flex-fill content px-4 pt-3 pb-5 border-top overflow-auto"
+                :class="{'font-serif': theme.font == 'serif', 'font-monospace': theme.font == 'monospace'}"
+                :style="{'font-size': theme.size + 'rem'}">
+                <div class="content-wrapper">
+                    <h1><b>{{ itemSelectedDetails.title || 'untitled' }}</b></h1>
+                    <div class="text-muted">
+                        <div>
+                            <span class="cursor-pointer" @click="feedSelected = 'feed:'+(feedsById[itemSelectedDetails.feed_id] || {}).id">
+                                {{ (feedsById[itemSelectedDetails.feed_id] || {}).title }}
+                            </span>
+                        </div>
+                        <time>{{ formatDate(itemSelectedDetails.date) }}</time>
+                    </div>
+                    <hr>
+                    <div v-if="!itemSelectedReadability">
+                        <div v-if="contentImages.length">
+                            <figure v-for="media in contentImages">
+                                <img :src="media.url" loading="lazy">
+                                <figcaption v-if="media.description">{{ media.description }}</figcaption>
+                            </figure>
+                        </div>
+                        <audio class="w-100" controls v-for="media in contentAudios" :src="media.url"></audio>
+                        <video class="w-100" controls v-for="media in contentVideos" :src="media.url"></video>
+                    </div>
+                    <div v-html="itemSelectedContent"></div>
+                </div>
+            </div>
+        </drawer>
         <modal :open="!!settings" @hide="settings = ''">
             <button class="btn btn-link outline-none float-right p-2 mr-n2 mt-n2" style="line-height: 1" @click="settings = ''">
                 <span class="icon">{% inline "x.svg" %}</span>

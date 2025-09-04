@@ -162,6 +162,48 @@ Vue.component('modal', {
   },
 })
 
+Vue.component('drawer', {
+  props: {
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: 'Drawer'
+    }
+  },
+  template: `
+    <div id="feed-item-drawer" v-if="visible">
+      <transition name="fade">
+        <div
+          class="drawer-overlay"
+          @click="handleOverlayClick"
+          v-show="visible"
+        ></div>
+      </transition>
+      <transition name="slide">
+        <div class="drawer" v-show="visible">
+          <div class="drawer-header">
+            <h2 class="drawer-title">{{ title }}</h2>
+          </div>
+          <div class="drawer-content">
+            <slot></slot>
+          </div>
+        </div>
+      </transition>
+    </div>
+  `,
+  methods: {
+    handleClose() {
+      this.$emit('close');
+    },
+    handleOverlayClick() {
+      this.$emit('close');
+    }
+  }
+})
+
 function dateRepr(d) {
   var sec = (new Date().getTime() - d.getTime()) / 1000
   var neg = sec < 0
