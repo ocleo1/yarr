@@ -135,13 +135,18 @@ func (feed *Feed) cleanup() {
 		feed.Items[i].Content = strings.TrimSpace(item.Content)
 
 		if len(feed.Items[i].MediaLinks) > 0 {
+			thumbnailLinks := make([]MediaLink, 0)
 			mediaLinks := make([]MediaLink, 0)
 			for _, link := range item.MediaLinks {
+				if link.Type == "image" && len(thumbnailLinks) == 0 {
+					thumbnailLinks = append(thumbnailLinks, link)
+					continue
+				}
 				if !strings.Contains(item.Content, link.URL) {
 					mediaLinks = append(mediaLinks, link)
 				}
 			}
-			feed.Items[i].MediaLinks = mediaLinks
+			feed.Items[i].MediaLinks = append(thumbnailLinks, mediaLinks...)
 		}
 	}
 }

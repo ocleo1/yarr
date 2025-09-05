@@ -169,9 +169,6 @@ func TestAtomImageLinkDuplicated(t *testing.T) {
 	if want != have {
 		t.Fatalf("want: %#v\nhave: %#v\n", want, have)
 	}
-	if len(feed.Items[0].MediaLinks) != 0 {
-		t.Fatal("item media link must be excluded if present in the content")
-	}
 }
 
 func TestAtomLinkInID(t *testing.T) {
