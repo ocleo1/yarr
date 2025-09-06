@@ -221,6 +221,10 @@
                         <span class="icon mr-1">{% inline "rss.svg" %}</span>
                         Feed Link
                     </a>
+                    <button class="dropdown-item" @click="fetchFeed()">
+                        <span class="icon mr-1">{% inline "rotate-cw.svg" %}</span>
+                        Refresh
+                    </button>
                     <div class="dropdown-divider" v-if="current.feed.link || current.feed.feed_link"></div>
                     <button class="dropdown-item" @click="changeFeedView('list')">
                         <div class="d-flex justify-content-between align-items-center">

@@ -107,6 +107,27 @@ func (w *Worker) RefreshFeeds() {
 	go w.refresher(feeds)
 }
 
+func (w *Worker) RefreshFeed(feedId int64) {
+	w.reflock.Lock()
+	defer w.reflock.Unlock()
+
+	if *w.pending > 0 {
+		log.Print("Refreshing already in progress")
+		return
+	}
+
+	feed := w.db.GetFeed(feedId)
+	if feed == nil {
+		log.Printf("Feed with id %d not found", feedId)
+		return
+	}
+
+	feeds := []storage.Feed{*feed}
+	log.Printf("Refreshing feed: %s", feed.Title)
+	atomic.StoreInt32(w.pending, int32(1))
+	go w.refresher(feeds)
+}
+
 func (w *Worker) refresher(feeds []storage.Feed) {
 	w.db.ResetFeedErrors()
 

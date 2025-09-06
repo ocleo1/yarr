@@ -734,6 +734,13 @@ var vm = new Vue({
         vm.refreshStats()
       })
     },
+    fetchFeed: function() {
+      if (this.loading.feeds) return
+      var parts = this.feedSelected.split(':', 2)
+      api.feeds.refresh_feed(parts[1]).then(function() {
+        vm.refreshStats()
+      })
+    },
     computeStats: function() {
       var filter = this.filterSelected
       if (!filter) {
